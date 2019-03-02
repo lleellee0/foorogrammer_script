@@ -1,0 +1,35 @@
+<script>
+var client = new WebSocket('wss://wss.gopax.co.kr/primus', 'echo-protocol');
+ 
+client.onerror = function() {
+    console.log('Connection Error');
+};
+ 
+client.onopen = function() {
+    console.log('WebSocket Client Connected');
+ 
+    function sendNumber() {
+        if (client.readyState === client.OPEN) {
+            client.send('"{\\"exchange\\":1}"');
+            setTimeout(() => {
+
+                client.send('"{\\"m\\":0,\\"i\\":4,\\"n\\":\\"GetNoticesList\\",\\"o\\":\\"{}\\"}"');
+
+            }, 500);
+        }
+    }
+    sendNumber();
+};
+ 
+client.onclose = function() {
+    console.log('echo-protocol Client Closed');
+};
+ 
+client.onmessage = function(e) {
+    if (typeof e.data === 'string') {
+        console.log("Received: '" + e.data + "'");
+        if(e.data.includes("ping"))
+            client.send(e.data.replace("ping", "pong"));
+    }
+};
+</script>
